@@ -1,3 +1,15 @@
-# calculator
+# Learning Goals: 
 
-Create a calculator with basic math operation functions.
+Use helper functions
+
+Use problem solving thinking before actual coding
+
+Use arrow function syntax
+
+# Todos:
+
+Create more calculator functions
+
+Implement keyboard support
+
+Style it nicer
