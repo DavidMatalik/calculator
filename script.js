@@ -2,53 +2,181 @@
 
 //Optional: Code extra Functions of the calculator description in TOP
 
-let currentNumber = "";
-let chosenOperator = "";
-let storedNumber = "";
+    const calculator = (function() {
 
-const calcDisplay = document.getElementById("display");
-const numberButtons = document.querySelectorAll("[data-button='number'");
-const operatorButtons = document.querySelectorAll("[data-button='operator'");
-const equalButton = document.querySelector("#buttonEquals");
-const clearButton = document.getElementById("buttonClear");
+        let _displayNumber = '';
+        let _chosenOperator = '';
+        let _storedNumber = '';
 
-numberButtons.forEach(button => {
-    button.addEventListener("click", numberClicked => {
-        storeValue(numberClicked);
+        //cache Dom
+        const _elements = document.querySelector('#calcContainer');
+        const _display = _elements.querySelector('#display');
+        const _numberButtons = _elements.querySelectorAll(`[data-button='number'`);
+        const _operatorButtons = _elements.querySelectorAll(`[data-button='operator'`);
+        const _equalButton = _elements.querySelector('#buttonEquals');
+        const _clearButton = _elements.querySelector('#buttonClear');
+
+        //bind Events
+        _numberButtons.forEach(button => {
+            button.addEventListener('click', _storeValue)
+        });
+        _operatorButtons.forEach(button => {
+            button.addEventListener('click', _handleOperatorButton);
+        })
+        _clearButton.addEventListener('click', _clearAllData);
+        _equalButton.addEventListener('click', _validateInput);
+
+        //calc Logic
+        function add (num1, num2) {return num1 + num2}
+        function subtract (num1, num2) {return num1 - num2}
+        function multiply (num1, num2) {return num1 * num2}
+        function divide (num1, num2) {
+            if (checkDivisorZero(num2)) {
+                return;
+            } 
+            return num1 / num2;
+        }
+
+        function checkDivisorZero(numberToCheck) {
+            if (numberToCheck === 0) {
+                handleDivisorZero();
+                return true;
+            }
+            return false;
+        }
+
+        function handleDivisorZero() {
+            _throwErrorMessage('Division by 0 is not possible. Enter a different divisor!');
+            _displayNumber = '';
+        }
+
+        function _operate (operator, number1, number2) {
+            number1 = parseFloat(number1);
+            number2 = parseFloat(number2);
+        
+                return (operator === '+') ? add(number1, number2) :
+                (operator === '-') ? subtract(number1, number2) :
+                (operator === 'x') ? multiply(number1, number2) :
+                (operator === ':') ? divide(number1, number2) :
+                console.log('Something went wrong');   
+        }
+
+        function _validateInput () {     
+            if (_chosenOperator && _storedNumber && _displayNumber) {
+                _updateDisplay(_operate(_chosenOperator, _storedNumber, _displayNumber));
+            } else {
+                _throwErrorMessage('That this works you need to type a number then an operator and then another number');
+            }
+        }
+
+        function _storeValue (numberClicked) {
+            _displayNumber += numberClicked.target.textContent;
+            _updateDisplay(_displayNumber);
+        }
+
+        function _updateDisplay (number) {
+            _display.textContent = number;
+        }
+
+        function _updateStoredNumber () {
+            _storedNumber = parseFloat(_display.textContent);
+        }
+        
+        function _updateChosenOperator (operatorClicked) {
+            _chosenOperator = operatorClicked.target.textContent;
+        }
+
+        function _handleOperatorButton  (operatorClicked) {
+            //If user presses Operator button before entering anything
+            if (!_displayNumber && !_storedNumber) {
+                _throwErrorMessage('That this works you need to type a number then an operator and then another number');
+        
+            //If user did everything as he is supposed to
+            } else if (_displayNumber && _storedNumber) {
+        
+                _updateDisplay(_operate(_chosenOperator, _storedNumber, _displayNumber));
+                _updateStoredNumber();
+                _displayNumber = '';
+                _updateChosenOperator(operatorClicked);
+        
+            //If user entered the very first number and clicked an operator button
+            } else if (_displayNumber && !_storedNumber) {
+        
+                _updateStoredNumber();
+                _updateChosenOperator(operatorClicked);
+                _displayNumber = '';
+        
+            //If user pressed operator button before entering a new number
+            } else if (!_displayNumber && _storedNumber) {
+        
+                _updateDisplay(_operate(_chosenOperator, _storedNumber, _storedNumber));
+                _updateStoredNumber();
+                _displayNumber = '';
+                _updateChosenOperator(operatorClicked);
+            }
+        }
+
+        function _clearAllData  () {
+            _displayNumber = '';
+            _chosenOperator = '';
+            _storedNumber = '';
+            _updateDisplay('');
+        }
+
+        function _throwErrorMessage  (message) {
+            alert (message);
+        }
+
+        return{add, subtract, multiply, divide};
+})();
+
+
+
+
+/*let currentNumber = '';
+let _chosenOperator = '';
+let _storedNumber = '';
+
+const calcDisplay = document.getElementById('display');
+const _numberButtons = document.querySelectorAll('[data-button='number'');
+const _operatorButtons = document.querySelectorAll('[data-button='operator'');
+const _equalButton = document.querySelector('#buttonEquals');
+const _clearButton = document.getElementById('buttonClear');
+
+_numberButtons.forEach(button => {
+    button.addEventListener('click', numberClicked => {
+        _storeValue(numberClicked);
         populateDisplay (currentNumber);
     });
 });
 
-operatorButtons.forEach(button => {
-    button.addEventListener("click", handleOperatorButton);
+_operatorButtons.forEach(button => {
+    button.addEventListener('click', _handleOperatorButton);
 });
 
-equalButton.addEventListener("click", () => {
-    if (validateInput()) {
-        populateDisplay(operate(chosenOperator, storedNumber, currentNumber));  
+_equalButton.addEventListener('click', () => {
+    if (_validateInput()) {
+        populateDisplay(_operate(_chosenOperator, _storedNumber, currentNumber));  
     }
 });
 
-clearButton.addEventListener("click", clearAllData);
+_clearButton.addEventListener('click', _clearAllData);
 
-function operate (operator, number1, number2) {
+function _operate (operator, number1, number2) {
 
     number1 = parseFloat(number1);
     number2 = parseFloat(number2);
 
-    if (operator === ":" && number2 === 0) {
-        throwErrorMessage("Division by 0 is not possible. Enter a different divisor!");
-        currentNumber = "";
+    if (operator === ':' && number2 === 0) {
+        _throwErrorMessage('Division by 0 is not possible. Enter a different divisor!');
+        currentNumber = '';
     }else {
-        return (operator === "+") ? add(number1, number2) :
-        (operator === "-") ? subtract(number1, number2) :
-        (operator === "x") ? multiply(number1, number2) :
-        (operator === ":") ? divide(number1, number2) :
-        console.log("Something went wrong");
-    }
-    
-
-    
+        return (operator === '+') ? add(number1, number2) :
+        (operator === '-') ? subtract(number1, number2) :
+        (operator === 'x') ? multiply(number1, number2) :
+        (operator === ':') ? divide(number1, number2) :
+        console.log('Something went wrong');
+    }    
 }
 
 function add (number1, number2) {
@@ -67,37 +195,37 @@ function divide (number1, number2) {
     return number1 / number2; 
 }
 
-function storeValue (numberClicked) {
+function _storeValue (numberClicked) {
     currentNumber += numberClicked.target.textContent;
 }
 
-function handleOperatorButton (operatorClicked) {
+function _handleOperatorButton (operatorClicked) {
     //If user presses Operator button before entering anything
-    if (!currentNumber && !storedNumber) {
-        throwErrorMessage("That this works you need to type a number then an operator and then another number");
+    if (!currentNumber && !_storedNumber) {
+        _throwErrorMessage('That this works you need to type a number then an operator and then another number');
 
     //If user did everything as he is supposed to
-    } else if (currentNumber && storedNumber) {
+    } else if (currentNumber && _storedNumber) {
 
-        populateDisplay(operate(chosenOperator, storedNumber, currentNumber));
-        updateStoredNumber();
-        currentNumber = "";
-        updateChosenOperator(operatorClicked);
+        populateDisplay(_operate(_chosenOperator, _storedNumber, currentNumber));
+        _updateStoredNumber();
+        currentNumber = '';
+        _updateChosenOperator(operatorClicked);
 
     //If user entered the very first number and clicked an operator button
-    } else if (currentNumber && !storedNumber) {
+    } else if (currentNumber && !_storedNumber) {
 
-        updateStoredNumber();
-        updateChosenOperator(operatorClicked);
-        currentNumber = "";
+        _updateStoredNumber();
+        _updateChosenOperator(operatorClicked);
+        currentNumber = '';
 
     //If user pressed operator button before entering a new number
-    } else if (!currentNumber && storedNumber) {
+    } else if (!currentNumber && _storedNumber) {
 
-        populateDisplay(operate(chosenOperator, storedNumber, storedNumber));
-        updateStoredNumber();
-        currentNumber = "";
-        updateChosenOperator(operatorClicked);
+        populateDisplay(_operate(_chosenOperator, _storedNumber, _storedNumber));
+        _updateStoredNumber();
+        currentNumber = '';
+        _updateChosenOperator(operatorClicked);
     }
 }
 
@@ -105,30 +233,30 @@ function populateDisplay (number) {
     calcDisplay.textContent = number;
 }
 
-function updateStoredNumber () {
-    storedNumber = parseFloat(calcDisplay.textContent);
+function _updateStoredNumber () {
+    _storedNumber = parseFloat(calcDisplay.textContent);
 }
 
-function updateChosenOperator (operatorClicked) {
-    chosenOperator = operatorClicked.target.textContent;
+function _updateChosenOperator (operatorClicked) {
+    _chosenOperator = operatorClicked.target.textContent;
 }
 
-function validateInput () {
-    if (chosenOperator && storedNumber && currentNumber) {
+function _validateInput () {
+    if (_chosenOperator && _storedNumber && currentNumber) {
         return true;
     } else {
-        throwErrorMessage("That this works you need to type a number then an operator and then another number");
+        _throwErrorMessage('That this works you need to type a number then an operator and then another number');
         return false;
     }
 }
 
-function throwErrorMessage (message) {
+function _throwErrorMessage (message) {
     alert (message);
 }
 
-function clearAllData () {
-    currentNumber = "";
-    chosenOperator = "";
-    storedNumber = "";
-    calcDisplay.textContent = "";
-}
+function _clearAllData () {
+    currentNumber = '';
+    _chosenOperator = '';
+    _storedNumber = '';
+    calcDisplay.textContent = '';
+}*/
