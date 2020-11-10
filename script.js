@@ -27,14 +27,14 @@
         _equalButton.addEventListener('click', _validateInput);
 
         //calc Logic
-        function add (num1, num2) {return num1 + num2}
-        function subtract (num1, num2) {return num1 - num2}
-        function multiply (num1, num2) {return num1 * num2}
-        function divide (num1, num2) {
-            if (checkDivisorZero(num2)) {
+        function add (addend1, addend2) {return addend1 + addend2}
+        function subtract (subtrahend, minuend) {return subtrahend - minuend}
+        function multiply (factor1, factor2) {return factor1 * factor2}
+        function divide (dividend, divisor) {
+            if (checkDivisorZero(divisor)) {
                 return;
             } 
-            return num1 / num2;
+            return dividend / divisor;
         }
 
         function checkDivisorZero(numberToCheck) {
